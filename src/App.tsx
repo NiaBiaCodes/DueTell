@@ -1,4 +1,5 @@
-import { useState, type ChangeEvent } from "react";
+import SyllabusResults from "./SyllabusResults";
+import { useRef, useState, type ChangeEvent } from "react";
 import { extractPdfText } from "./utils/extractPdfText";
 import "./App.css";
 
@@ -7,6 +8,8 @@ function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
   const [extractedText, setExtractedText] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -22,6 +25,11 @@ function App() {
     if (file.type !== "application/pdf") {
       setSelectedFile(null);
       setError("Please upload a PDF syllabus.");
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
       return;
     }
 
@@ -65,6 +73,10 @@ function App() {
     setSelectedFile(null);
     setExtractedText("");
     setError("");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
 
   return (
@@ -74,8 +86,8 @@ function App() {
           DueTell
         </a>
 
-        <span className="nav-label">What's due? DueTell.</span>      
-        </header>
+        <span className="nav-label">What's due? DueTell.</span>
+      </header>
 
       <section className="hero-section">
         <div className="hero-copy">
@@ -101,6 +113,7 @@ function App() {
 
           <label className="file-drop">
             <input
+              ref={fileInputRef}
               type="file"
               accept="application/pdf"
               onChange={handleFileChange}
@@ -135,9 +148,12 @@ function App() {
       {extractedText && (
         <section className="text-preview">
           <div className="section-heading">
+
             <div>
+            
               <span className="eyebrow">PDF extraction successful</span>
-              <h2>Text found in your syllabus</h2>
+              <span className="step-number">2</span>
+              <h2>View Analysis</h2>
             </div>
 
             <button
@@ -147,15 +163,11 @@ function App() {
             >
               Analyze another
             </button>
-          </div>
-
-          <p>
-            This is the raw text DueTell extracted from your PDF. The next step
-            will organize this text into course details, deadlines, grade
-            weights, and policies.
-          </p>
-
-          <pre>{extractedText}</pre>
+          
+          
+              
+            </div>
+          <SyllabusResults text={extractedText} />
         </section>
       )}
     </main>
